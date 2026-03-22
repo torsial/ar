@@ -27,10 +27,11 @@
         <p style="margin-top:20px; color: #888; font-family: sans-serif;">Pripravené pre Barbakán</p>
     </div>
 
+
     <a-scene 
-        mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes;" 
-        embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" 
-        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF:0.001; filterBeta: 10;" 
+    embedded vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+
         
         <a-assets>
             <video id="vid" src="video_animacia.mp4" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
