@@ -5,67 +5,58 @@
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; }
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; }
         #overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); color: white; z-index: 1000;
+            background: rgba(0,0,0,0.9); z-index: 1000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-family: sans-serif;
         }
-        button {
-            padding: 20px 40px; font-size: 1.2rem; background: #00C957; 
-            color: white; border: none; border-radius: 10px; cursor: pointer;
-        }
+        button { padding: 20px 40px; font-size: 1.2rem; background: #00C957; color: white; border: none; border-radius: 10px; }
     </style>
 </head>
 <body>
     <div id="overlay">
-        <button id="startBtn">SPUSTIŤ AR ZÁŽITOK</button>
-        <p id="status" style="margin-top:15px">Čakám na kliknutie...</p>
+        <button id="startBtn">AKTIVOVAŤ KAMERU</button>
+        <p id="status" style="margin-top:15px">Stlač tlačidlo vyššie</p>
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes;" 
-        embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" 
-        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+        mindar-image="imageTargetSrc: targets.txt; autoStart: false; uiLoading: yes; uiScanning: yes;" 
+        embedded vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         
         <a-assets>
             <video id="vid" src="video_animacia.mp4" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-video src="#vid" width="1" height="0.6" position="0 0 0"></a-video>
+            <a-video src="#vid" width="1" height="0.6"></a-video>
         </a-entity>
     </a-scene>
 
     <script>
         const startBtn = document.getElementById('startBtn');
         const status = document.getElementById('status');
-        const overlay = document.getElementById('overlay');
-        const sceneEl = document.querySelector('a-scene');
-
+        
         startBtn.addEventListener('click', () => {
-            status.innerText = "Štartujem kameru...";
-            startBtn.style.display = "none";
-            
-            // Toto je kľúčový príkaz pre štart na iPhone
+            status.innerText = "Pripravujem prenos...";
+            const sceneEl = document.querySelector('a-scene');
             const arSystem = sceneEl.systems["mindar-image-system"];
+            
+            // Timeout pre diagnostiku
+            const timer = setTimeout(() => {
+                alert("Kamera zamrzla. Skontroluj: Nastavenia -> Safari -> Kamera -> Povoliť.");
+            }, 5000);
+
+            sceneEl.addEventListener("arReady", () => {
+                clearTimeout(timer);
+                document.getElementById('overlay').style.display = "none";
+            });
+
             arSystem.start(); 
         });
 
-        sceneEl.addEventListener("arReady", () => {
-            overlay.style.display = "none";
-            console.log("AR pripravené");
-        });
-
-        sceneEl.addEventListener("arError", (e) => {
-            status.innerText = "Chyba kamery: " + e.detail;
-            alert("Povoľ prístup ku kamere v nastaveniach Safari.");
-        });
-
-        sceneEl.addEventListener("targetFound", () => {
+        document.querySelector('a-scene').addEventListener("targetFound", () => {
             document.getElementById('vid').play();
         });
     </script>
