@@ -2,26 +2,26 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; }
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; }
         #overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 1000;
+            background: #000; z-index: 1000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        button { padding: 20px 40px; font-size: 1.2rem; background: #00C957; color: white; border: none; border-radius: 10px; }
+        button { padding: 20px 40px; font-size: 1.2rem; background: #00C957; color: white; border: none; border-radius: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div id="overlay">
-        <button id="startBtn">AKTIVOVAŤ KAMERU</button>
-        <p id="status" style="margin-top:15px">Stlač tlačidlo vyššie</p>
+        <button id="startBtn">OTVORIŤ AR KAMERU</button>
+        <p style="margin-top:20px; color: #888;">Barbakan Projekt v1.0</p>
     </div>
 
     <a-scene 
-        mindar-image="imageTargetSrc: targets.txt; autoStart: false; uiLoading: yes; uiScanning: yes;" 
+        mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes;" 
         embedded vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         
         <a-assets>
@@ -36,28 +36,20 @@
 
     <script>
         const startBtn = document.getElementById('startBtn');
-        const status = document.getElementById('status');
-        
+        const overlay = document.getElementById('overlay');
+        const sceneEl = document.querySelector('a-scene');
+
         startBtn.addEventListener('click', () => {
-            status.innerText = "Pripravujem prenos...";
-            const sceneEl = document.querySelector('a-scene');
+            // Skryjeme tlačidlo a spustíme AR
+            overlay.style.display = "none";
             const arSystem = sceneEl.systems["mindar-image-system"];
-            
-            // Timeout pre diagnostiku
-            const timer = setTimeout(() => {
-                alert("Kamera zamrzla. Skontroluj: Nastavenia -> Safari -> Kamera -> Povoliť.");
-            }, 5000);
-
-            sceneEl.addEventListener("arReady", () => {
-                clearTimeout(timer);
-                document.getElementById('overlay').style.display = "none";
-            });
-
             arSystem.start(); 
         });
 
-        document.querySelector('a-scene').addEventListener("targetFound", () => {
-            document.getElementById('vid').play();
+        // iPhone fix: Video sa musí "nakopnúť" po prvom dotyku
+        sceneEl.addEventListener("targetFound", () => {
+            const video = document.getElementById('vid');
+            video.play();
         });
     </script>
 </body>
