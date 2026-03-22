@@ -29,7 +29,7 @@
 
 
 <a-scene 
-    mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF:0.0001; filterBeta: 1000;" 
+    mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes; filterMinCF:0.1; filterBeta: 10000; warmupTolerance: 5; missTolerance: 10;" 
     embedded vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
     
     <a-assets>
@@ -39,7 +39,7 @@
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
-        <a-video src="#vid" width="1" height="0.65" position="0 0 0.02"></a-video>
+        <a-video src="#vid" width="0.88" height="0.65" position="0 0 0.05"></a-video>
     </a-entity>
 </a-scene>
 
