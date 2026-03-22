@@ -2,53 +2,63 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.2/dist/mindar-image.prod.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; }
-        #container { width: 100vw; height: 100vh; }
-        #btn { 
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            padding: 20px 40px; background: #00C957; color: white; 
-            border-radius: 15px; font-weight: bold; z-index: 1000; border: none;
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; }
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        button {
+            padding: 20px 40px; font-size: 18px; background: #00C957; 
+            color: white; border: none; border-radius: 10px; font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <button id="btn">SPUSTIŤ AR KAMERU</button>
-    <div id="container"></div>
+    <div id="overlay">
+        <button onclick="startAR()">POVOLIŤ AR KAMERU</button>
+        <p id="msg" style="margin-top: 20px;">Ťukni na tlačidlo</p>
+    </div>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiLoading: yes; uiScanning: yes;" 
+        embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" 
+        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <video id="vid" src="video_animacia.mp4" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-video src="#vid" width="1" height="0.6"></a-video>
+        </a-entity>
+    </a-scene>
 
     <script>
-        const btn = document.getElementById('btn');
-        
-        btn.addEventListener('click', async () => {
-            btn.style.display = 'none';
+        function startAR() {
+            const sceneEl = document.querySelector('a-scene');
+            const arSystem = sceneEl.systems["mindar-image-system"];
+            const msg = document.getElementById('msg');
             
-            const mindarThree = new window.MINDAR.IMAGE.MindARThree({
-                container: document.querySelector("#container"),
-                imageTargetSrc: './targets.mind',
-                uiLoading: "yes",
-                uiScanning: "yes"
-            });
-
-            const {renderer, scene, camera} = mindarThree;
+            document.getElementById('overlay').style.display = 'none';
             
-            // Pridanie videa
-            const video = document.createElement("video");
-            video.src = "./video_animacia.mp4";
-            video.setAttribute('playsinline', '');
-            video.setAttribute('webkit-playsinline', '');
-            video.muted = true;
-            video.loop = true;
+            // Pokus o štart
+            arSystem.start(); 
+            
+            // Kontrola po 2 sekundách, či kamera nabehla
+            setTimeout(() => {
+                if (document.querySelector('video') && document.querySelector('video').videoWidth === 0) {
+                    alert("Kamera sa nespustila. Skontroluj: Nastavenia -> Safari -> Kamera -> Povoliť.");
+                }
+            }, 2000);
+        }
 
-            try {
-                await mindarThree.start();
-                renderer.setAnimationLoop(() => {
-                    renderer.render(scene, camera);
-                });
-                alert("AR úspešne naštartované! Namier na pohľadnicu.");
-            } catch (err) {
-                alert("CHYBA ŠTARTU: " + err.message);
-            }
+        document.querySelector('a-scene').addEventListener("targetFound", () => {
+            document.getElementById('vid').play();
         });
     </script>
 </body>
